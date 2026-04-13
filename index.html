@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>amenitiz — career compass — sales</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue:        #507FE6;
+    --blue-dark:   #2D58B8;
+    --blue-darker: #1A3A8A;
+    --blue-light:  #7BA3EF;
+    --blue-pale:   #D6E4FB;
+    --blue-bg:     #EEF4FF;
+    --gold:        #C9A96E;
+    --gold-light:  #E8D5B0;
+    --white:       #FFFFFF;
+    --gray-50:     #F7F9FE;
+    --gray-100:    #EBF0FA;
+    --gray-200:    #CFDAF5;
+    --gray-400:    #8FA6D4;
+    --gray-600:    #4A6199;
+    --gray-900:    #0D1F4A;
+    --font:        'DM Sans', sans-serif;
+    --radius:      16px;
+    --radius-sm:   10px;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--gray-50);
+    color: var(--gray-900);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ── LOGIN GATE ── */
+  #gate {
+    position: fixed; inset: 0; z-index: 1000;
+    background: var(--blue-darker);
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  #gate.hidden { display: none; }
+
+  .gate-bg {
+    position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+  }
+  .gate-blob {
+    position: absolute; border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+  }
+  .gb1 { width: 400px; height: 320px; top: -80px; left: -60px; border-radius: 60% 40% 70% 30%; }
+  .gb2 { width: 280px; height: 220px; bottom: -40px; right: -40px; border-radius: 40% 60% 30% 70%; }
+  .gb3 { width: 160px; height: 160px; top: 40%; left: 60%; border-radius: 50%; background: rgba(201,169,110,0.06); }
+  .gate-deco-tl {
+    position: absolute; top: 32px; left: 32px; opacity: 0.25;
+  }
+  .gate-deco-br {
+    position: absolute; bottom: 32px; right: 32px; opacity: 0.2;
+  }
+
+  .gate-card {
+    position: relative; z-index: 1;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 40px 36px 36px;
+    width: 100%; max-width: 400px;
+    backdrop-filter: blur(12px);
+    animation: gateIn .4s cubic-bezier(.22,1,.36,1) both;
+  }
+  @keyframes gateIn {
+    from { opacity:0; transform: translateY(16px) scale(.98); }
+    to   { opacity:1; transform: translateY(0) scale(1); }
+  }
+
+  .gate-logo {
+    font-size: 18px; font-weight: 300; color: var(--white);
+    letter-spacing: -.01em; margin-bottom: 4px;
+  }
+  .gate-title {
+    font-size: 22px; font-weight: 500; color: var(--white);
+    margin-bottom: 6px; line-height: 1.2;
+  }
+  .gate-sub {
+    font-size: 13px; color: rgba(255,255,255,0.5);
+    margin-bottom: 28px; line-height: 1.5;
+  }
+
+  .gate-field { margin-bottom: 14px; }
+  .gate-label {
+    display: block; font-size: 11px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: .07em;
+    color: rgba(255,255,255,0.5); margin-bottom: 6px;
+  }
+  .gate-input {
+    width: 100%; padding: 11px 14px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    font-family: var(--font); font-size: 14px;
+    color: var(--white);
+    outline: none; transition: border-color .15s, background .15s;
+  }
+  .gate-input::placeholder { color: rgba(255,255,255,0.3); }
+  .gate-input:focus {
+    border-color: rgba(255,255,255,0.4);
+    background: rgba(255,255,255,0.12);
+  }
+  .gate-input.error { border-color: #F08080; }
+
+  .gate-error {
+    font-size: 12px; color: #F08080;
+    margin-top: 8px; min-height: 18px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .gate-error::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #F08080; flex-shrink: 0; }
+  .gate-error:empty { display: none; }
+  .gate-error:empty::before { display: none; }
+
+  .gate-btn {
+    width: 100%; margin-top: 20px;
+    padding: 13px;
+    background: var(--blue);
+    border: none; border-radius: 10px;
+    font-family: var(--font); font-size: 14px; font-weight: 500;
+    color: var(--white); cursor: pointer;
+    transition: background .15s, transform .1s;
+    letter-spacing: .01em;
+  }
+  .gate-btn:hover { background: var(--blue-dark); }
+  .gate-btn:active { transform: scale(.99); }
+
+  .gate-hint {
+    margin-top: 16px; text-align: center;
+    font-size: 11.5px; color: rgba(255,255,255,0.3);
+    line-height: 1.5;
+  }
+
+  /* ── APP (hidden until auth) ── */
+  #app { display: none; }
+  #app.visible { display: block; }
+
+  /* ── Header ── */
+  header {
+    background: var(--blue);
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+    min-height: 72px;
+    display: flex;
+    align-items: center;
+  }
+  .header-bg { position: absolute; inset: 0; pointer-events: none; }
+  .blob { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.08); }
+  .blob-1 { width: 180px; height: 140px; top: -40px; left: 60px; border-radius: 60% 40% 70% 30%; }
+  .blob-2 { width: 120px; height: 100px; top: 10px; right: 200px; border-radius: 40% 60% 30% 70%; }
+  .blob-3 { width: 80px; height: 80px; bottom: -20px; right: 80px; border-radius: 50%; }
+  .deco-svg { position: absolute; right: 24px; top: 50%; transform: translateY(-50%); opacity: 0.5; }
+  .header-inner {
+    position: relative; z-index: 1;
+    padding: 16px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    width: 100%;
+  }
+  .logo { font-size: 20px; font-weight: 300; color: var(--white); letter-spacing: -.01em; }
+  .header-right { display: flex; align-items: center; gap: 16px; }
+  .header-tag { font-size: 12px; font-weight: 400; color: rgba(255,255,255,0.7); letter-spacing: .02em; }
+  .logout-btn {
+    font-size: 11.5px; font-weight: 400; color: rgba(255,255,255,0.5);
+    background: none; border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px; padding: 4px 12px; cursor: pointer;
+    font-family: var(--font); transition: all .15s; letter-spacing: .01em;
+  }
+  .logout-btn:hover { color: var(--white); border-color: rgba(255,255,255,0.5); }
+
+  /* ── Container ── */
+  .container { max-width: 1100px; margin: 0 auto; padding: 28px 24px 60px; }
+
+  /* ── Role selector ── */
+  .selector-wrap { margin-bottom: 24px; }
+  .section-label {
+    font-size: 11px; font-weight: 500; text-transform: uppercase;
+    letter-spacing: .08em; color: var(--gray-400); margin-bottom: 10px;
+  }
+  .role-groups { display: flex; flex-direction: column; gap: 8px; }
+  .role-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .group-tag {
+    font-size: 10px; font-weight: 500; text-transform: uppercase;
+    letter-spacing: .06em; color: var(--gray-400); min-width: 56px;
+  }
+  .role-btn {
+    padding: 6px 14px; border-radius: 20px; font-size: 12.5px;
+    font-family: var(--font); cursor: pointer;
+    border: 1.5px solid var(--gray-200); color: var(--gray-600);
+    background: var(--white); transition: all .15s; font-weight: 400;
+  }
+  .role-btn:hover { border-color: var(--blue-light); color: var(--blue); background: var(--blue-bg); }
+  .role-btn.active { border-color: var(--blue); background: var(--blue); color: var(--white); font-weight: 500; }
+
+  /* ── Journey card ── */
+  .journey-card {
+    background: var(--blue); border-radius: var(--radius);
+    padding: 20px 24px 18px; margin-bottom: 16px;
+    position: relative; overflow: hidden;
+  }
+  .journey-card .blob { background: rgba(255,255,255,0.06); }
+  .journey-card .jb1 { width: 160px; height: 120px; top: -30px; right: 40px; border-radius: 50% 40% 60% 50%; }
+  .journey-card .jb2 { width: 80px; height: 80px; bottom: -20px; left: 20px; border-radius: 40% 60% 50% 60%; }
+  .journey-deco { position: absolute; right: 20px; bottom: 10px; opacity: 0.3; }
+  .journey-label {
+    font-size: 11px; font-weight: 500; text-transform: uppercase;
+    letter-spacing: .08em; color: rgba(255,255,255,0.6); margin-bottom: 14px;
+    position: relative; z-index: 1;
+  }
+  .journey {
+    display: flex; align-items: center; gap: 0;
+    overflow-x: auto; padding-bottom: 2px; position: relative; z-index: 1;
+  }
+  .jstep { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+  .jcircle {
+    width: 42px; height: 42px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 500; flex-shrink: 0;
+  }
+  .j-past    { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.5); border: 1.5px solid rgba(255,255,255,0.2); }
+  .j-current { background: var(--white); color: var(--blue); border: 2px solid var(--white); font-weight: 600; }
+  .j-next    { background: rgba(255,255,255,0.25); color: var(--white); border: 2px solid rgba(255,255,255,0.5); }
+  .j-future  { background: transparent; color: rgba(255,255,255,0.35); border: 1.5px dashed rgba(255,255,255,0.2); }
+  .jlabel { font-size: 10px; color: rgba(255,255,255,0.5); text-align: center; margin-top: 6px; max-width: 80px; line-height: 1.3; }
+  .jlabel.current { color: var(--white); font-weight: 500; }
+  .jlabel.next    { color: rgba(255,255,255,0.75); }
+  .jarrow { width: 24px; height: 2px; background: rgba(255,255,255,0.2); flex-shrink: 0; position: relative; margin-bottom: 20px; }
+  .jarrow::after { content:''; position: absolute; right: -5px; top: -4px; border-left: 8px solid rgba(255,255,255,0.2); border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+  .jarrow.active { background: rgba(255,255,255,0.5); }
+  .jarrow.active::after { border-left-color: rgba(255,255,255,0.5); }
+
+  /* ── Role summary ── */
+  .role-summary {
+    background: var(--white); border: 1px solid var(--gray-100);
+    border-radius: var(--radius-sm); padding: 14px 16px;
+    margin-bottom: 16px; font-size: 13.5px; color: var(--gray-600); line-height: 1.6;
+    border-left: 3px solid var(--blue);
+  }
+  .role-summary strong { color: var(--blue-dark); font-weight: 500; display: block; margin-bottom: 3px; }
+
+  /* ── Legend ── */
+  .legend {
+    display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 14px;
+    padding-bottom: 14px; border-bottom: 1px solid var(--gray-100);
+  }
+  .leg { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--gray-600); }
+  .ldot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+  /* ── Comparison ── */
+  .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .col-header { padding: 10px 14px; border-radius: var(--radius-sm) var(--radius-sm) 0 0; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .05em; }
+  .col-now  { background: var(--blue); color: var(--white); }
+  .col-next { background: var(--blue-pale); color: var(--blue-dark); }
+  .col-body { border: 1px solid var(--gray-100); border-top: none; border-radius: 0 0 var(--radius-sm) var(--radius-sm); background: var(--white); }
+  .comp-row { padding: 11px 14px; border-bottom: 1px solid var(--gray-100); }
+  .comp-row:last-child { border-bottom: none; }
+  .comp-name { font-size: 12.5px; font-weight: 500; color: var(--gray-900); margin-bottom: 4px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .comp-desc { font-size: 12px; color: var(--gray-600); line-height: 1.55; }
+  .comp-na   { font-size: 12px; color: var(--gray-400); font-style: italic; }
+  .badge { font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 400; white-space: nowrap; }
+  .b-u   { background: var(--blue-bg); color: var(--blue-dark); }
+  .b-r   { background: #EDF4FF; color: var(--blue-darker); border: 1px solid var(--blue-pale); }
+  .b-s   { background: #FFF8ED; color: #7A4F00; }
+  .b-new { background: var(--gold-light); color: #5C3A00; font-weight: 500; }
+
+  @media (max-width: 700px) {
+    .comparison { grid-template-columns: 1fr; }
+    .header-inner { padding: 14px 20px; }
+    .container { padding: 16px 16px 40px; }
+    .gate-card { padding: 32px 24px 28px; }
+  }
+  /* ── Track button variants ── */
+  .role-btn.hybrid { border-color: #D9CCFF; color: #7C5CBF; }
+  .role-btn.hybrid:hover { border-color: #7C5CBF; background: #F3EEFF; }
+  .role-btn.hybrid.active { border-color: #7C5CBF; background: #7C5CBF; color: var(--white); }
+  .role-btn.mgr { border-color: #C0EDD9; color: #2E9B6E; }
+  .role-btn.mgr:hover { border-color: #2E9B6E; background: #EAFAF3; }
+  .role-btn.mgr.active { border-color: #2E9B6E; background: #2E9B6E; color: var(--white); }
+
+  /* ── Journey current track colours ── */
+  .j-current.is-hybrid { color: #7C5CBF; }
+  .j-current.is-mgr    { color: #2E9B6E; }
+
+  /* ── KPI strip ── */
+  .kpi-strip { background: var(--white); border: 1px solid var(--gray-100); border-radius: var(--radius-sm); padding: 12px 16px; margin-bottom: 14px; display: flex; gap: 24px; flex-wrap: wrap; align-items: center; }
+  .kpi-item  { display: flex; flex-direction: column; gap: 2px; }
+  .kpi-label { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; color: var(--gray-400); }
+  .kpi-value { font-size: 13px; font-weight: 500; color: var(--gray-900); }
+  .kpi-div   { width: 1px; height: 30px; background: var(--gray-100); }
+
+  /* ── Lateral move notice ── */
+  .lateral-notice { background: #FFF8ED; border: 1px solid #F0D9A0; border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 14px; font-size: 12px; color: #7A4F00; display: flex; align-items: center; gap: 8px; }
+  .lateral-notice a { color: #7A4F00; font-weight: 500; cursor: pointer; text-decoration: underline; }
+
+  /* ── Role summary track colours ── */
+  .role-summary.hybrid-s { border-left-color: #7C5CBF; }
+  .role-summary.mgr-s    { border-left-color: #2E9B6E; }
+  .role-summary.hybrid-s strong { color: #7C5CBF; }
+  .role-summary.mgr-s    strong { color: #2E9B6E; }
+
+  /* ── Col header track colours ── */
+  .col-now.hybrid-col { background: #7C5CBF; }
+  .col-now.mgr-col    { background: #2E9B6E; }
+</style>
+</head>
+<body>
+
+
+<div id="gate">
+  <div class="gate-bg">
+    <div class="gate-blob gb1"></div>
+    <div class="gate-blob gb2"></div>
+    <div class="gate-blob gb3"></div>
+    <svg class="gate-deco-tl" width="48" height="48" viewBox="0 0 48 48" fill="none">
+      <path d="M24 3 L26 22 L45 24 L26 26 L24 45 L22 26 L3 24 L22 22 Z" stroke="#C9A96E" stroke-width="1" fill="none"/>
+    </svg>
+    <svg class="gate-deco-br" width="80" height="40" viewBox="0 0 80 40" fill="none">
+      <path d="M4 20 Q20 4 40 20 Q60 36 76 20" stroke="#C9A96E" stroke-width="1" fill="none"/>
+      <path d="M12 28 Q28 12 48 28" stroke="#C9A96E" stroke-width="0.8" fill="none" opacity="0.5"/>
+    </svg>
+  </div>
+
+  <div class="gate-card">
+    <div class="gate-logo">amenitiz</div>
+    <div class="gate-title">Career Compass</div>
+    <div class="gate-sub">Sign in with your Amenitiz email to access your career framework.</div>
+
+    <div class="gate-field">
+      <label class="gate-label" for="gate-email">Work email</label>
+      <input class="gate-input" type="email" id="gate-email" placeholder="you@amenitiz.com" autocomplete="email">
+    </div>
+
+    <div class="gate-field">
+      <label class="gate-label" for="gate-password">Password</label>
+      <input class="gate-input" type="password" id="gate-password" placeholder="••••••••••••" autocomplete="current-password">
+    </div>
+
+    <div class="gate-error" id="gate-error"></div>
+
+    <button class="gate-btn" id="gate-submit">Access Career Compass</button>
+
+    <div class="gate-hint">Access restricted to @amenitiz.com accounts</div>
+  </div>
+</div>
+
+<!-- ── APP ── -->
+<div id="app">
+
+<header>
+  <div class="header-bg">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <svg class="deco-svg" width="60" height="60" viewBox="0 0 60 60" fill="none">
+      <path d="M30 4 L32 28 L56 30 L32 32 L30 56 L28 32 L4 30 L28 28 Z" stroke="#C9A96E" stroke-width="1" fill="none" opacity="0.6"/>
+    </svg>
+  </div>
+  <div class="header-inner">
+    <div class="logo">amenitiz</div>
+    <div class="header-right">
+      <div class="header-tag">career compass — onboarding</div>
+      <button class="logout-btn" id="logout-btn">sign out</button>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="selector-wrap">
+    <div class="section-label">select your role</div>
+    <div class="role-groups" id="roleGroups"></div>
+  </div>
+
+  <div class="journey-card">
+    <div class="blob jb1"></div>
+    <div class="blob jb2"></div>
+    <svg class="journey-deco" width="50" height="50" viewBox="0 0 50 50" fill="none">
+      <path d="M10 25 Q18 8 25 25 Q32 42 40 25" stroke="#C9A96E" stroke-width="1.2" fill="none"/>
+      <path d="M15 35 Q22 18 30 35" stroke="#C9A96E" stroke-width="1" fill="none" opacity="0.5"/>
+    </svg>
+    <div class="journey-label">your career path</div>
+    <div class="journey" id="journey"></div>
+  </div>
+
+  <div id="lateralNotice"></div>
+  <div id="kpiStrip"></div>
+  <div class="role-summary" id="roleSummary"></div>
+
+  <div class="legend">
+    <div class="leg"><div class="ldot" style="background:#EEF4FF;border:1px solid #7BA3EF"></div>universal competency</div>
+    <div class="leg"><div class="ldot" style="background:#EDF4FF;border:1px solid #507FE6"></div>role-specific</div>
+    <div class="leg"><div class="ldot" style="background:#FFF8ED;border:1px solid #C9A96E"></div>seniority-gated</div>
+    <div class="leg"><div class="ldot" style="background:#E8D5B0;border:1px solid #C9A96E"></div>new at next level</div>
+  </div>
+
+  <div class="comparison" id="comparison"></div>
+
+</div>
+</div>
+
+
+<script>
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+const PASS = 'Raisethebar';
+const DOMAIN = '@amenitiz.com';
+const SESSION_KEY = 'cc_auth';
+
+function checkSession() {
+  return sessionStorage.getItem(SESSION_KEY) === '1';
+}
+
+function unlock() {
+  sessionStorage.setItem(SESSION_KEY, '1');
+  document.getElementById('gate').classList.add('hidden');
+  document.getElementById('app').classList.add('visible');
+}
+
+function lock() {
+  sessionStorage.removeItem(SESSION_KEY);
+  document.getElementById('gate').classList.remove('hidden');
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('gate-email').value = '';
+  document.getElementById('gate-password').value = '';
+  document.getElementById('gate-error').textContent = '';
+}
+
+document.getElementById('gate-submit').addEventListener('click', function() {
+  const email = document.getElementById('gate-email').value.trim().toLowerCase();
+  const pass  = document.getElementById('gate-password').value;
+  const errEl = document.getElementById('gate-error');
+  const emailEl = document.getElementById('gate-email');
+  const passEl  = document.getElementById('gate-password');
+
+  emailEl.classList.remove('error');
+  passEl.classList.remove('error');
+  errEl.textContent = '';
+
+  if (!email.endsWith(DOMAIN)) {
+    emailEl.classList.add('error');
+    errEl.textContent = 'Please use your @amenitiz.com email address.';
+    return;
+  }
+  if (pass !== PASS) {
+    passEl.classList.add('error');
+    errEl.textContent = 'Incorrect password. Please try again.';
+    return;
+  }
+  unlock();
+});
+
+// Allow Enter key on both fields
+['gate-email','gate-password'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') document.getElementById('gate-submit').click();
+  });
+});
+
+document.getElementById('logout-btn').addEventListener('click', lock);
+
+// Check existing session on load
+if (checkSession()) unlock();
+
+// ── APP ───────────────────────────────────────────────────────────────────────
+
+
+const U="Universal",R="Role-specific",S="Seniority-gated";
+
+const roles={
+  ic1:{label:"SDR Associate",level:"IC1",track:"IC",nextId:"ic2out",nextLabel:"SDR Outbound",nextLevel:"IC2",journeyIds:["ic1","ic2out","ic3sdr","ic3bdr","ic4srbdr"],kpi:{timeline:"Month 0",leads:"100% Outbound",mrr:"—",activity:"Guided tasks"},lateral:null,summary:"Learns the basics of outbound prospecting and sales processes. Supports the SDR team with guided tasks and observation of qualification calls.",competencies:[
+    {name:"Customer Centricity",type:U,now:"Listens actively to prospects and tries to understand their needs with manager support. Focuses on making a positive first impression.",next:"Adapts outbound messaging to the specific needs and pain points of each prospect independently."},
+    {name:"Business Acumen",type:U,now:"Knows the basic company structure. Begins to understand fundamental SaaS and hospitality metrics (MRR, churn, CAC) with guidance.",next:"Understands key SaaS and hospitality metrics and recognises how own pipeline activity impacts business growth."},
+    {name:"Operational Excellence",type:U,now:"Completes assigned tasks with guidance. Meets deadlines and pays attention to detail. Follows established processes.",next:"Manages high volume of outbound activity while maintaining CRM accuracy and meeting activity targets."},
+    {name:"CRM & Data Discipline",type:S,now:"Learns to use HubSpot to log activities. Follows team instructions on how to keep data clean and accurate.",next:"Maintains accurate CRM data independently. Ensures pipeline hygiene for reporting and forecasting."},
+  ]},
+  ic2out:{label:"SDR Outbound",level:"IC2",track:"IC",nextId:"ic3sdr",nextLabel:"Sr SDR",nextLevel:"IC3",journeyIds:["ic1","ic2out","ic3sdr","ic3bdr","ic4srbdr"],kpi:{timeline:"Month 0",leads:"100% Outbound (cold calling)",mrr:"1,050 EUR",activity:"2.0h calls · 15 conversations/day"},lateral:null,summary:"Generates qualified opportunities through proactive outbound outreach. Engages potential customers via cold calling and emailing, identifies their needs, and positions Amenitiz as the ideal solution.",competencies:[
+    {name:"Customer Centricity",type:U,now:"Listens actively and adapts outbound messaging to the specific needs and pain points of each prospect.",next:"Anticipates prospect needs and builds genuine trust. Goes beyond the script to understand business context."},
+    {name:"Business Acumen",type:U,now:"Understands key SaaS and hospitality metrics. Recognises how own pipeline activity impacts business growth.",next:"Applies SaaS metrics to refine outbound strategy. Understands the commercial impact of pipeline quality."},
+    {name:"Operational Excellence",type:U,now:"Manages high outbound volume while maintaining CRM accuracy. Prioritises daily tasks and meets activity targets.",next:"Optimises own prospecting workflows. Identifies inefficiencies and proposes improvements before rollout."},
+    {name:"Cold Outreach & Prospecting",type:R,now:"Executes cold calls and outbound sequences using established cadences and scripts with guidance. Engages prospects at high volume and generates qualified meetings.",next:"Designs and tests custom cadences, messaging frameworks and outreach experiments across segments and personas."},
+    {name:"Pipeline Management",type:S,now:"Manages early-stage pipeline through timely follow-ups. Tracks qualification status with support, ensuring pipeline hygiene.",next:"Owns top-of-funnel pipeline quality. Optimises conversion processes and ensures clean handovers to AEs."},
+    {name:"Market Knowledge",type:S,now:"Understands market trends and competitors. Uses this to personalise outreach and answer basic prospect questions.",next:"Analyses market dynamics to refine prospecting strategies. Uses competitor insights to differentiate messaging."},
+    {name:"CRM & Data Discipline",type:S,now:"Maintains accurate CRM data. Ensures basic pipeline hygiene for reporting and forecasting.",next:"Uses CRM strategically to track performance patterns and identify optimisation opportunities."},
+  ]},
+  ic3sdr:{label:"Sr SDR",level:"IC3",track:"IC",nextId:"ic3bdr",nextLabel:"BDR or AE",nextLevel:"IC4",journeyIds:["ic2out","ic3sdr","ic3bdr","ic4srbdr"],kpi:{timeline:"Month 6",leads:"100% Outbound (cold calling)",mrr:"1,050 EUR × 110%",activity:"2.5h calls · 20 conversations/day"},lateral:{label:"or SDR Player Coach (IC3 Hybrid) — leadership path",targetId:"coach"},summary:"Drives strategic outbound pipeline growth across higher-value segments. Designs and tests outreach strategies, mentors junior SDRs, and contributes to ICP refinement with Marketing and RevOps.",competencies:[
+    {name:"Customer Centricity",type:U,now:"Anticipates prospect needs and builds genuine trust. Goes beyond the script to understand business context and create meaningful conversations.",next:"Ensures the entire SDR team approaches prospects with empathy and genuine curiosity. Coaches on customer-first prospecting."},
+    {name:"Business Acumen",type:U,now:"Applies SaaS metrics to refine outbound strategy. Understands the commercial impact of pipeline quality on the business.",next:"Uses business acumen to contribute to quarterly outbound planning. Identifies strategic market opportunities."},
+    {name:"Operational Excellence",type:U,now:"Optimises own prospecting workflows. Identifies inefficiencies and implements improvements before team rollout.",next:"Monitors team-level efficiency and drives systematic improvements. Defines processes for the entire SDR team."},
+    {name:"Cold Outreach & Prospecting",type:R,now:"Designs and tests custom cadences and messaging frameworks across segments. Targets higher-value segments and strategic partnerships.",next:"Defines the outbound prospecting strategy and playbook for the SDR team. Sets direction for market segment approach."},
+    {name:"Pipeline Management",type:S,now:"Owns top-of-funnel pipeline quality. Optimises conversion processes and ensures clean handovers to AEs.",next:"Oversees full SDR pipeline health. Removes systemic bottlenecks. Mentors the team on pipeline discipline."},
+    {name:"Pipeline Forecasting",type:S,now:"Contributes to top-of-funnel forecasts with accuracy. Provides structured insights on lead quality to the SDR Manager.",next:"Owns SDR-level pipeline forecasting accuracy. Analyses pipeline data to identify trends, risks and opportunities."},
+    {name:"Team Enablement & Coaching",type:S,now:"Onboards and shadows new SDRs. Runs call reviews and shares best practices.",next:"Builds a coaching and development culture. Develops Team Leads. Invests in long-term SDR growth."},
+    {name:"Market Knowledge",type:S,now:"Analyses market dynamics to refine prospecting strategies. Uses competitor insights to differentiate messaging.",next:"Adapts SDR strategy to market changes. Brings competitor insights to go-to-market decisions."},
+    {name:"CRM & Data Discipline",type:S,now:"Uses CRM strategically to track performance patterns. Proposes workflow improvements.",next:"Defines CRM usage standards and reporting frameworks for the team."},
+  ]},
+  coach:{label:"SDR Player Coach",level:"IC3",track:"IC / Hybrid",nextId:"m3sdr",nextLabel:"SDR Team Leader",nextLevel:"M3",journeyIds:["ic3sdr","coach","m3sdr","m4","m5"],kpi:{timeline:"From Sr SDR",leads:"50% individual outbound quota",mrr:"50% individual + 50% team pod",activity:"Pod of max 5 SDRs"},lateral:null,summary:"Hybrid 50-50 role: carries an individual outbound target while leading a small, high-focus SDR pod. Leads from the front. The fastest path to sales leadership at Amenitiz.",competencies:[
+    {name:"Customer Centricity",type:U,now:"Coaches SDRs to approach every prospect with genuine curiosity and empathy. Models customer-first communication in daily outreach and leads by example on the floor.",next:"Ensures the team maintains a customer-first approach. Models empathy and value-focused communication across the pod."},
+    {name:"Business Acumen",type:U,now:"Uses SaaS and hospitality metrics to evaluate SDR performance and coach on pipeline impact. Understands how outbound activity drives revenue.",next:"Applies metrics to guide full-cycle deal strategy and pipeline management. Links coaching actions to revenue outcomes."},
+    {name:"Operational Excellence",type:U,now:"Manages own 50% individual outbound quota while maintaining rigorous coaching routines, reporting cadences and team performance tracking.",next:"Drives process improvements across the pod. Contributes to playbook evolution and outbound best practices."},
+    {name:"Cold Outreach & Prospecting",type:R,now:"Carries an individual outbound target (50% of SDR quota). Designs cadences and messaging frameworks. Leads from the front to model execution standards for the pod.",next:"Owns the full pipeline from first touch to close. Runs demos and manages the end-to-end sales cycle independently."},
+    {name:"Team Enablement & Coaching",type:R,now:"Leads a pod of up to 5 SDRs. Runs structured weekly 1-to-1s, live call shadowing, role plays and objection drills. Acts as the primary source of performance insight for the Head of Sales.",next:"Builds a coaching and development culture across a full team. Develops SDRs and Team Leads consistently."},
+    {name:"Performance Reporting",type:R,now:"Tracks and reports activity vs results, conversion gaps and skill gaps to the Head of Sales. Translates raw performance data into targeted coaching actions.",next:"Monitors individual SDR metrics across a full team. Identifies systemic gaps and intervenes proactively."},
+    {name:"Pipeline Management",type:S,now:"Owns top-of-funnel pipeline quality for the pod. Ensures clean handovers to AEs and consistent CRM hygiene across the team.",next:"Manages the full sales cycle pipeline end-to-end. Ensures deal progression and forecast accuracy independently."},
+    {name:"CRM & Data Discipline",type:S,now:"Maintains own CRM accuracy while enforcing team-level data hygiene standards. Uses data patterns to direct coaching priorities.",next:"Uses CRM strategically for full-cycle deal tracking. Contributes to forecasting best practices."},
+    {name:"Market Knowledge",type:S,now:"Uses competitor and market insights to sharpen SDR messaging. Keeps the pod current on industry dynamics and Amenitiz positioning.",next:"Applies market knowledge to refine demo positioning and closing strategies on complex deals."},
+  ]},
+  ic4bdr:{label:"BDR",level:"IC3",track:"IC",nextId:"ic4srbdr",nextLabel:"Sr BDR",nextLevel:"IC4",journeyIds:["ic3sdr","ic3bdr","ic4srbdr","m3sdr","m4","m5"],kpi:{timeline:"Month 12",leads:"Inbound + Outbound",mrr:"830 EUR",activity:"1.5h calls · 10 conv · 15 emails · 2.8% Win Rate E2E"},lateral:{label:"Lateral move available: Account Executive (IC4) — full-cycle closing focus on SDR-sourced pipeline",targetId:"ic4ae"},summary:"Owns the full sales cycle — from first outbound touch to a signed deal. Not a meeting-booking role. You prospect, run demos, and close. End-to-end ownership of pipeline, conversion rates and revenue contribution.",competencies:[
+    {name:"Customer Centricity",type:U,now:"Builds genuine relationships with prospects across the full sales cycle. Connects product value to specific business context at every stage — from first call to close.",next:"Manages complex, high-value accounts with multi-stakeholder dynamics. Mentors junior BDRs on consultative selling."},
+    {name:"Business Acumen",type:U,now:"Links deal outcomes to customer business objectives. Uses SaaS and hospitality metrics to guide closing strategy and prioritise pipeline.",next:"Understands multi-stakeholder business context in complex organisations. Shapes deal strategy at executive level."},
+    {name:"Operational Excellence",type:U,now:"Manages the full sales cycle with rigour — prospecting, demos, pipeline and close. Maintains CRM accuracy and consistent follow-up discipline.",next:"Same rigour on more complex deals. Drives process improvements and contributes to full-cycle playbook evolution."},
+    {name:"Cold Outreach & Prospecting",type:R,now:"Executes high-volume outbound (calls, emails, chat) to generate own pipeline from scratch. Maintains consistent activity levels and builds top-of-funnel independently.",next:"Designs and tests custom cadences and messaging frameworks across segments. Targets higher-value segments and strategic accounts."},
+    {name:"Demo & Discovery",type:R,now:"Runs structured, tailored demos connected to each prospect\'s specific pain points. Conducts deep discovery to qualify fit and drive urgency to close.",next:"Applied to complex, multi-stakeholder, high-revenue deals. Coaches junior BDRs on demo quality and discovery depth."},
+    {name:"Deal Closing & Negotiation",type:R,now:"Leads negotiation of deal terms, pricing and objections independently. Creates urgency where it is earned. Closes the full cycle without hand-off.",next:"Applied to high-value, multi-stakeholder deals. Drives negotiation strategy and contributes to pricing decisions."},
+    {name:"Pipeline Management",type:S,now:"Builds and manages own full-funnel pipeline in HubSpot. Ensures deal progression, accurate stage updates and no follow-up slips.",next:"Same plus oversees pipeline on strategic deals. Supports forecasting and mentors peers on pipeline discipline."},
+    {name:"Pipeline Forecasting",type:S,now:"Maintains accurate CRM data to support reliable pipeline forecasting. Flags risks and opportunities proactively.",next:"Supports team-level forecasting accuracy. Identifies risks early and escalates proactively."},
+    {name:"Market Knowledge",type:S,now:"Understands the hospitality tech landscape and competitive positioning. Uses market insights to sharpen demo positioning and handle competitor objections.",next:"Uses market insights to contribute to GTM strategy. Identifies emerging high-value segments."},
+    {name:"CRM & Data Discipline",type:S,now:"Maintains CRM accuracy for full-cycle tracking. Ensures all deal stages, notes and forecasts are always up to date in HubSpot.",next:"Same plus contributes to CRM hygiene best practices and supports team-level forecasting."},
+    {name:"Team Enablement & Coaching",type:S,now:"Shares market feedback, objection patterns and competitive intel with peers and leadership. Supports junior BDRs informally.",next:"Provides structured mentoring to junior BDRs. Leads enablement initiatives and special projects."},
+  ]},
+  ic4ae:{label:"Account Executive",level:"IC4",track:"IC",nextId:"ic5srae",nextLabel:"Sr Account Executive",nextLevel:"IC5",journeyIds:["ic3sdr","ic4ae","ic5srae","m3ae","m4","m5"],kpi:{timeline:"Month 12",leads:"75% SDR-sourced + 25% self-gen",mrr:"75% SDR-sourced + 25% self-gen",activity:"Full cycle · demos to close"},lateral:{label:"Lateral move available: BDR (IC3) — full outbound end-to-end ownership",targetId:"ic3bdr"},summary:"Converts qualified leads into paying customers through tailored demos, deep discovery and consultative closing. Owns the full sales cycle from demo to close independently.",competencies:[
+    {name:"Customer Centricity",type:U,now:"Champions customer needs throughout the full sales cycle. Connects prospect pain points to product solutions in a genuinely consultative way.",next:"Builds long-term strategic relationships with decision-makers in complex, high-revenue accounts."},
+    {name:"Business Acumen",type:U,now:"Links deal outcomes to customer business objectives. Uses this to guide closing strategy.",next:"Understands multi-stakeholder business context in complex organisations. Shapes deal strategy at executive level."},
+    {name:"Operational Excellence",type:U,now:"Manages the full sales cycle with rigour. Maintains CRM accuracy and ensures consistent follow-up discipline.",next:"Same rigour on more complex deals. Additionally drives process improvements and contributes to playbook evolution."},
+    {name:"Demo & Discovery",type:R,now:"Conducts tailored demos and deep discovery. Handles objections and closes deals independently.",next:"Applied to complex, multi-stakeholder, high-revenue deals. Coaches junior AEs on demo quality."},
+    {name:"Deal Closing & Negotiation",type:R,now:"Leads negotiation of deal terms, pricing and re-negotiation. Manages stakeholder resistance and closes independently.",next:"Applied to high-value, multi-stakeholder deals. Drives negotiation strategy and contributes to pricing decisions."},
+    {name:"Pipeline Management",type:S,now:"Owns full funnel from demo to close. Ensures deal progression and CRM accuracy.",next:"Same plus oversees pipeline on strategic deals and mentors peers on pipeline discipline."},
+    {name:"Pipeline Forecasting",type:S,now:"Maintains accurate CRM data to support reliable pipeline forecasting.",next:"Supports team-level forecasting. Coaches AEs on forecast discipline."},
+    {name:"Team Enablement & Coaching",type:S,now:"Supports AE peers with feedback on demos and objection handling.",next:"Provides structured mentoring to junior AEs. Leads team enablement initiatives and special projects."},
+    {name:"Market Knowledge",type:S,now:"Analyses market dynamics to sharpen positioning and handle competitor objections during demos.",next:"Uses market insights to contribute to GTM strategy. Identifies emerging segments."},
+    {name:"CRM & Data Discipline",type:S,now:"Maintains CRM accuracy for full-cycle tracking. Ensures all deal stages and notes are always up to date.",next:"Same plus contributes to CRM hygiene best practices and supports team-level forecasting."},
+  ]},
+  ic5srbdr:{label:"Sr BDR",level:"IC4",track:"IC",nextId:"m3sdr",nextLabel:"SDR Team Leader",nextLevel:"M3",journeyIds:["ic3bdr","ic4srbdr","m3sdr","m4","m5"],kpi:{timeline:"Month 18+",leads:"Inbound + Outbound",mrr:"1,190 EUR",activity:"1.7h calls · 12 conv · 20 emails · 4.0% Win Rate E2E"},lateral:{label:"Lateral move available: Sr Account Executive (IC5) — SDR-sourced pipeline focus",targetId:"ic5srae"},summary:"Owns the full sales cycle on complex, high-revenue and multi-stakeholder deals. Same core work as BDR but on more strategic accounts. Mentors junior BDRs and contributes to sales strategy.",competencies:[
+    {name:"Customer Centricity",type:U,now:"Manages complex, high-value accounts with multi-stakeholder dynamics. Builds long-term relationships with decision-makers and mentors junior BDRs on consultative selling.",next:"Ensures the team maintains a customer-first approach. Models empathy and value-focused communication in coaching."},
+    {name:"Business Acumen",type:U,now:"Understands multi-stakeholder business context in complex organisations. Shapes deal strategy at executive level.",next:"Applies SaaS metrics in day-to-day team decisions. Fully grasps company operations and structure."},
+    {name:"Operational Excellence",type:U,now:"Same rigour as BDR on more complex deals. Drives process improvements and contributes to full-cycle playbook evolution.",next:"Monitors team efficiency. Identifies bottlenecks in the pipeline and implements scalable improvements."},
+    {name:"Cold Outreach & Prospecting",type:R,now:"Designs and tests custom cadences and messaging frameworks across segments. Targets higher-value segments and strategic accounts.",next:"Defines the outbound prospecting strategy and playbook. Sets direction for market segment approach."},
+    {name:"Demo & Discovery",type:R,now:"Applied to complex, multi-stakeholder, high-revenue deals. Coaches junior BDRs on demo quality and discovery depth.",next:"Coaches the team on demo quality and discovery depth. Reviews recordings and provides structured feedback."},
+    {name:"Deal Closing & Negotiation",type:R,now:"Applied to high-value, multi-stakeholder deals. Drives negotiation strategy and contributes to pricing decisions.",next:"Guides team members in client negotiations. Runs post-deal debriefs and coaches on complex objection handling."},
+    {name:"Pipeline Management",type:S,now:"Same as BDR plus oversees pipeline on strategic deals. Supports forecasting and mentors peers on pipeline discipline.",next:"Guides team in full-funnel pipeline management. Ensures deal progression and CRM accuracy across the team."},
+    {name:"Pipeline Forecasting",type:S,now:"Supports team-level forecasting accuracy. Identifies risks early and escalates proactively.",next:"Monitors team pipeline and flags risks. Ensures CRM accuracy for team-level forecasting."},
+    {name:"Team Enablement & Coaching",type:S,now:"Provides structured mentoring to junior BDRs. Leads enablement initiatives and special projects. Contributes to playbook and training standards.",next:"Builds a coaching and development culture. Develops the team consistently."},
+    {name:"Market Knowledge",type:S,now:"Uses market insights to contribute to GTM strategy. Identifies emerging high-value segments.",next:"Uses market insights to guide team briefings. Ensures the team is current on competitors and industry trends."},
+    {name:"CRM & Data Discipline",type:S,now:"Same as BDR plus contributes to CRM hygiene best practices and supports team-level forecasting.",next:"Ensures consistent CRM usage across the team. Reviews data quality and coaches on hygiene best practices."},
+  ]},
+  ic5srae:{label:"Sr Account Executive",level:"IC5",track:"IC",nextId:"m3ae",nextLabel:"AE Team Leader",nextLevel:"M3",journeyIds:["ic4ae","ic5srae","m3ae","m4","m5"],kpi:{timeline:"Month 18+",leads:"75% SDR-sourced + 25% self-gen",mrr:"Complex deals + mentorship",activity:"Strategic accounts · peer mentoring"},lateral:{label:"Lateral move available: Sr BDR (IC4) — full outbound ownership",targetId:"ic4srbdr"},summary:"Owns the full sales cycle on complex, high-revenue and multi-stakeholder deals. Same core work as the AE but on more strategic accounts. Mentors junior AEs and contributes to sales strategy.",competencies:[
+    {name:"Customer Centricity",type:U,now:"Builds long-term strategic relationships with decision-makers in complex, high-revenue accounts.",next:"Ensures AEs adopt a consultative, customer-first approach. Models empathy and needs-based selling."},
+    {name:"Business Acumen",type:U,now:"Understands multi-stakeholder business context. Uses insights to shape deal strategy and handle executive conversations.",next:"Applies SaaS metrics in day-to-day team decisions. Fully grasps company operations and structure."},
+    {name:"Operational Excellence",type:U,now:"Same rigour as AE on more complex deals. Drives process improvements and contributes to playbook evolution.",next:"Monitors team efficiency. Identifies bottlenecks in the demo-to-close process and implements improvements."},
+    {name:"Demo & Discovery",type:R,now:"Applied to complex, multi-stakeholder, high-revenue deals. Coaches junior AEs on demo quality.",next:"Coaches AEs on demo quality and discovery depth. Reviews demo recordings and provides structured feedback."},
+    {name:"Deal Closing & Negotiation",type:R,now:"Applied to high-value, multi-stakeholder deals. Drives negotiation strategy and contributes to pricing decisions.",next:"Guides AEs in client negotiations. Runs post-deal debriefs and coaches on complex objection handling."},
+    {name:"Performance Optimization",type:R,now:"Not yet applicable — IC track.",next:"Monitors individual AE metrics (win rate, conversion, deal size). Identifies gaps and intervenes with targeted coaching.",nextNew:true},
+    {name:"Cross-functional Leadership",type:R,now:"Not yet applicable — IC track.",next:"Collaborates with RevOps and CS to ensure smooth post-signature handovers. Brings AE feedback to the AE Manager.",nextNew:true},
+    {name:"Pipeline Management",type:S,now:"Same as AE plus oversees pipeline on strategic deals, supports forecasting and mentors peers.",next:"Guides AEs in full-funnel pipeline management. Ensures deal progression and CRM accuracy across the team."},
+    {name:"Pipeline Forecasting",type:S,now:"Supports team-level forecasting accuracy. Identifies risks early and escalates proactively.",next:"Monitors team pipeline and flags risks to the AE Manager. Ensures CRM accuracy for team-level forecasting."},
+    {name:"Team Enablement & Coaching",type:S,now:"Provides structured mentoring to junior AEs. Leads enablement initiatives and special projects.",next:"Mentors junior AEs through shadowing and call reviews. Helps build a high-performance sales culture."},
+    {name:"Market Knowledge",type:S,now:"Uses market insights to contribute to GTM strategy. Identifies emerging high-value segments.",next:"Uses market insights to guide team briefings. Ensures AEs are up to date on competitors."},
+    {name:"CRM & Data Discipline",type:S,now:"Same as AE plus contributes to CRM hygiene best practices and supports team-level forecasting.",next:"Ensures consistent CRM usage across the AE team. Reviews deal data quality and coaches on accuracy."},
+  ]},
+  m3sdr:{label:"SDR Team Leader",level:"M3",track:"Manager",nextId:"m4",nextLabel:"Sales Manager",nextLevel:"M4",journeyIds:["ic3sdr","m3sdr","m4","m5"],kpi:{timeline:"Month 24–30",leads:"N/A",mrr:"Team target + personal quota",activity:"Team coaching + own pipeline"},lateral:null,summary:"Supports the Sales Manager in driving SDR team success. Provides hands-on coaching, tracks performance metrics and ensures best practices are followed. Splits time between management and delivery.",competencies:[
+    {name:"Customer Centricity",type:U,now:"Ensures the team maintains a customer-first approach. Models empathy and value-focused communication in coaching.",next:"Builds a customer-first culture within the SDR team. Ensures prospect insights feed back into outreach strategy."},
+    {name:"Business Acumen",type:U,now:"Applies SaaS metrics in day-to-day team decisions. Fully grasps company operations and structure.",next:"Integrates SaaS metrics into team planning and pipeline reporting. Understands broader implications of SDR performance."},
+    {name:"Operational Excellence",type:U,now:"Monitors team operational efficiency. Identifies process gaps in outreach workflows and implements improvements.",next:"Defines and optimises SDR team workflows. Identifies systemic bottlenecks and implements scalable improvements."},
+    {name:"Cold Outreach & Prospecting",type:R,now:"Coaches SDRs on outbound technique, messaging quality and cadence execution. Reviews outreach and provides structured feedback.",next:"Defines the outbound prospecting strategy and playbook. Monitors messaging quality and tests new approaches."},
+    {name:"Performance Optimization",type:R,now:"Monitors individual SDR metrics (conversion, activity, CRM quality). Identifies gaps and intervenes with targeted coaching.",next:"Defines SDR team KPIs and processes. Analyses performance data to identify systemic gaps."},
+    {name:"Planning & Execution",type:R,now:"Creates detailed plans for team coaching cycles. Ensures timely execution of outbound initiatives.",next:"Develops quarterly outbound plans aligned with pipeline targets. Adjusts priorities based on performance data."},
+    {name:"Cross-functional Leadership",type:R,now:"Collaborates with AE Team Leads and RevOps to ensure smooth handovers. Brings team feedback to the Sales Manager.",next:"Actively collaborates with RevOps, Marketing and CS. Leads cross-functional conversations backed by data."},
+    {name:"Pipeline Management",type:S,now:"Supports the team in managing early-stage pipeline. Coaches on CRM hygiene and ensures quality handovers to AEs.",next:"Oversees full SDR pipeline health. Removes systemic bottlenecks. Mentors Team Leads on pipeline discipline."},
+    {name:"Pipeline Forecasting",type:S,now:"Monitors team pipeline activity and flags risks to the Sales Manager.",next:"Owns SDR-level pipeline forecasting accuracy. Analyses pipeline data to identify trends and risks."},
+    {name:"Team Enablement & Coaching",type:S,now:"Onboards new SDRs and runs structured coaching sessions. Hosts call reviews and shares best practices.",next:"Builds a coaching and development culture. Develops Team Leads. Invests in long-term SDR growth."},
+    {name:"Market Knowledge",type:S,now:"Uses market insights to guide team briefings. Ensures the team is up to date on competitors and industry trends.",next:"Analyses market dynamics to adapt SDR strategy. Collaborates with Marketing on ICP and lead quality."},
+    {name:"CRM & Data Discipline",type:S,now:"Ensures consistent CRM usage across the team. Reviews data quality and coaches on hygiene best practices.",next:"Defines CRM usage standards and reporting frameworks. Ensures data integrity for accurate pipeline forecasting."},
+  ]},
+  m3ae:{label:"AE Team Leader",level:"M3",track:"Manager",nextId:"m4",nextLabel:"Sales Manager",nextLevel:"M4",journeyIds:["ic5srae","m3ae","m4","m5"],kpi:{timeline:"Month 24–30",leads:"N/A",mrr:"Team target + personal quota",activity:"Team coaching + own pipeline"},lateral:null,summary:"Supports the Sales Manager in driving AE team success. Acts as mentor and coach to improve sales performance, refine strategies and ensure team alignment with business goals.",competencies:[
+    {name:"Customer Centricity",type:U,now:"Ensures AEs adopt a consultative, customer-first approach. Coaches on active listening and needs-based selling.",next:"Builds a customer-first culture within the AE team. Ensures customer insights feed back into sales strategy."},
+    {name:"Business Acumen",type:U,now:"Applies SaaS metrics in day-to-day team decisions. Fully grasps company operations and structure.",next:"Integrates SaaS metrics into team planning and revenue reporting. Understands broader implications of AE performance."},
+    {name:"Operational Excellence",type:U,now:"Monitors team efficiency. Identifies bottlenecks in the demo-to-close process and implements improvements.",next:"Defines and optimises AE team workflows. Identifies systemic bottlenecks and implements scalable improvements."},
+    {name:"Demo & Discovery",type:R,now:"Coaches AEs on demo quality, discovery depth and consultative positioning. Reviews demo recordings and provides structured feedback.",next:"Defines the demo and discovery framework for the team. Works with Product and Marketing on positioning."},
+    {name:"Deal Closing & Negotiation",type:R,now:"Guides AEs in client negotiations. Runs post-deal debriefs and coaches on complex objection handling.",next:"Manages high-value negotiations directly when needed. Mentors AEs on complex deals. Contributes to pricing strategy."},
+    {name:"Performance Optimization",type:R,now:"Monitors individual AE metrics (win rate, conversion, deal size). Identifies gaps and intervenes with targeted coaching.",next:"Defines AE team KPIs and processes. Analyses performance data to identify systemic gaps."},
+    {name:"Planning & Execution",type:R,now:"Creates detailed plans for team coaching and AE development. Ensures timely execution of sales initiatives.",next:"Develops quarterly sales plans aligned with revenue targets. Drives execution and adjusts based on performance data."},
+    {name:"Cross-functional Leadership",type:R,now:"Collaborates with RevOps and CS to ensure smooth post-signature handovers. Brings AE feedback to the Sales Manager.",next:"Actively collaborates with RevOps, Marketing and CS. Leads cross-functional conversations backed by data."},
+    {name:"Pipeline Management",type:S,now:"Guides AEs in full-funnel pipeline management. Ensures deal progression and CRM accuracy across the team.",next:"Oversees full-funnel AE pipeline health. Ensures accurate forecasting. Removes bottlenecks."},
+    {name:"Pipeline Forecasting",type:S,now:"Monitors team pipeline and flags risks to the Sales Manager. Ensures CRM accuracy for team-level forecasting.",next:"Owns AE-level pipeline forecasting accuracy. Analyses deal data to identify risks and opportunities."},
+    {name:"Team Enablement & Coaching",type:S,now:"Mentors junior AEs through shadowing and call reviews. Helps build a high-performance sales culture.",next:"Builds a coaching and development culture. Develops Team Leads. Invests in long-term AE growth."},
+    {name:"CRM & Data Discipline",type:S,now:"Ensures consistent CRM usage across the AE team. Reviews deal data quality and coaches on accuracy.",next:"Defines CRM usage standards and reporting frameworks. Ensures data integrity for accurate revenue forecasting."},
+  ]},
+
+  m4sdr:{label:"SDR Manager",level:"M4",track:"Manager",nextId:"m5",nextLabel:"Head of Sales",nextLevel:"M5",journeyIds:["ic3sdr","m3sdr","m4sdr","m5"],kpi:{timeline:"Month 30+",leads:"N/A",mrr:"N/A",activity:"Full SDR function ownership"},lateral:null,summary:"Leads the entire SDR function — outbound strategy, team performance and talent development. Owns pipeline generation targets across the SDR team. Works closely with the Sales Manager and AE Team Leaders to ensure top-of-funnel quality and conversion.",competencies:[
+    {name:"Customer Centricity",type:U,now:"Champions a prospect-first culture across the SDR function. Ensures outreach quality and messaging reflects genuine customer understanding.",next:"Embeds customer insights into the overall sales strategy. Ensures all SDR output feeds into broader GTM decisions."},
+    {name:"Business Acumen",type:U,now:"Integrates pipeline generation metrics into business planning. Understands the commercial impact of SDR activity on revenue and growth.",next:"Anticipates the impact of top-of-funnel performance on company revenue. Integrates SDR data into strategic planning."},
+    {name:"Operational Excellence",type:U,now:"Defines and optimises SDR workflows, cadences and tooling. Removes systemic bottlenecks. Sets clear standards for volume, quality and CRM usage.",next:"Sets operational standards for the entire Sales function. Leads efficiency initiatives across the go-to-market organisation."},
+    {name:"Cold Outreach & Prospecting",type:R,now:"Defines the outbound prospecting strategy and playbook for the SDR function. Sets direction for ICP, segments and messaging quality. Tests and iterates on cadence approaches.",next:"Owns the company-wide outbound and market expansion vision."},
+    {name:"Performance Optimization",type:R,now:"Defines SDR function KPIs and performance standards. Analyses cross-team data to identify systemic gaps. Holds Team Leads accountable to targets.",next:"Diagnoses systemic performance issues across the entire Sales function. Develops efficiency frameworks at scale."},
+    {name:"Planning & Execution",type:R,now:"Develops quarterly SDR plans aligned with pipeline targets. Adjusts priorities based on cross-team performance data. Coordinates with Marketing on lead generation.",next:"Drives execution of complex Sales initiatives. Aligns sales plans with company-wide strategic objectives."},
+    {name:"Cross-functional Leadership",type:R,now:"Actively collaborates with RevOps, Marketing and AE leadership. Leads cross-functional conversations to ensure pipeline quality and handover standards.",next:"Leads strategic alignment between Sales, Marketing, Product and CS. Represents the Sales function company-wide."},
+    {name:"Pipeline Management",type:S,now:"Oversees full SDR pipeline health. Removes systemic bottlenecks. Ensures accurate top-of-funnel reporting and consistent pipeline discipline across the team.",next:"Defines pipeline strategy at organisational level. Ensures cross-team forecast accuracy."},
+    {name:"Pipeline Forecasting",type:S,now:"Owns SDR-function pipeline forecasting accuracy. Analyses data to identify trends, risks and opportunities. Ensures accurate reporting to the Head of Sales.",next:"Owns organisation-wide pipeline forecasting accuracy. Integrates sales data into company-level financial planning."},
+    {name:"Team Enablement & Coaching",type:S,now:"Develops SDR Team Leaders. Builds a unified coaching culture across the SDR function. Invests in long-term leadership development.",next:"Champions a coaching culture across the entire Sales function. Develops Managers. Leads Sales learning programmes."},
+    {name:"Market Knowledge",type:S,now:"Analyses market dynamics to adapt SDR strategy. Collaborates with Marketing on ICP refinement, lead quality and competitive positioning.",next:"Uses market insights to shape product and business strategies. Anticipates emerging trends."},
+    {name:"CRM & Data Discipline",type:S,now:"Defines CRM usage standards for the SDR function. Ensures data integrity for accurate pipeline forecasting and top-of-funnel reporting.",next:"Defines the CRM strategy and data governance standards for the entire Sales function."},
+  ]},  m4:{label:"Sales Manager",level:"M4",track:"Manager",nextId:"m5",nextLabel:"Head of Sales",nextLevel:"M5",journeyIds:["m3sdr","m3ae","m4","m5"],kpi:{timeline:"Month 30+",leads:"N/A",mrr:"Team target only",activity:"Cross-team: SDR + BDR + AE"},lateral:null,summary:"Leads all sales functions — SDR, BDR and AE — through their Team Leaders. Owns cross-team performance, planning and revenue results. Drives a unified high-performance culture across the entire sales floor.",competencies:[
+    {name:"Customer Centricity",type:U,now:"Builds a customer-first culture across SDR, BDR and AE teams. Ensures prospect and customer insights feed back into outreach strategy, demo approach and product decisions.",next:"Champions a customer-first culture across the entire Sales function. Customer insights drive strategic decisions on product and GTM."},
+    {name:"Business Acumen",type:U,now:"Integrates SaaS and hospitality metrics into cross-team planning and revenue reporting. Understands the broader business implications of SDR, BDR and AE performance on growth.",next:"Anticipates the impact of the entire Sales function on the business. Integrates SaaS metrics into strategic planning."},
+    {name:"Operational Excellence",type:U,now:"Defines and optimises workflows across SDR, BDR and AE teams. Identifies systemic bottlenecks across all functions and implements scalable improvements.",next:"Sets timelines and ensures delivery of critical initiatives across the Sales function. Leads improvement programmes at organisational level."},
+    {name:"Performance Optimization",type:R,now:"Defines KPIs and performance standards across SDR, BDR and AE functions. Analyses cross-team performance data to identify systemic gaps. Holds Team Leads accountable.",next:"Diagnoses complex systemic performance issues across the entire Sales function. Develops efficiency frameworks at scale."},
+    {name:"Team Enablement & Coaching",type:R,now:"Develops SDR Team Leaders, AE Team Leaders and Player Coaches. Builds a unified coaching culture across all sales functions. Invests in long-term leadership development.",next:"Champions a coaching culture across the entire Sales function. Develops Managers. Leads Sales learning programmes."},
+    {name:"Planning & Execution",type:R,now:"Develops quarterly sales plans aligned with revenue targets across all segments and channels. Drives execution and adjusts priorities based on cross-team performance data.",next:"Drives execution of complex Sales initiatives. Aligns Sales plans with strategic company objectives."},
+    {name:"Deal Closing & Negotiation",type:R,now:"Supports SDR, BDR and AE teams in complex negotiations. Steps in directly on high-value or sensitive deals. Coaches on objection handling, pricing decisions and closing strategy.",next:"Owns organisation-wide negotiations on strategic deals. Influences key stakeholders and aligns deals with long-term business objectives."},
+    {name:"Cross-functional Leadership",type:R,now:"Actively collaborates with RevOps, Marketing and CS across SDR, BDR and AE workstreams. Leads cross-functional conversations backed by data from all sales functions.",next:"Leads strategic alignment between Sales, Marketing, Product and CS. Represents the Sales function company-wide."},
+    {name:"Product Influence",type:R,now:"Represents the voice of all sales functions in go-to-market discussions. Brings structured cross-team insights to Marketing and Product.",next:"Aligns and influences the product roadmap based on market needs. Represents Sales in product strategy at executive level."},
+    {name:"Pipeline Management",type:S,now:"Oversees full pipeline health across SDR, BDR and AE functions. Removes systemic bottlenecks. Ensures accurate forecasting and consistent pipeline discipline across all teams.",next:"Defines pipeline strategy at organisational level. Ensures cross-team forecast accuracy. Sets standards for the entire Sales function."},
+    {name:"Pipeline Forecasting",type:S,now:"Owns cross-team pipeline forecasting accuracy across SDR, BDR and AE. Analyses data to identify trends, risks and opportunities across all segments.",next:"Owns organisation-wide pipeline forecasting accuracy. Integrates sales data into company-level financial planning."},
+    {name:"CRM & Data Discipline",type:S,now:"Defines CRM usage standards across all sales functions. Ensures data integrity for accurate revenue forecasting across SDR, BDR and AE pipelines.",next:"Defines the CRM strategy and data governance standards for the entire Sales function."},
+    {name:"Market Knowledge",type:S,now:"Analyses market dynamics to adapt strategy across all sales functions. Collaborates with Marketing on ICP refinement, lead quality and competitive positioning.",next:"Uses market insights to shape product and business strategies at company level. Anticipates emerging trends."},
+  ]},
+  m5:{label:"Head of Sales",level:"M5",track:"Manager",nextId:null,nextLabel:"Sales Director / VP Sales",nextLevel:"M6/VP",journeyIds:["m4","m5"],kpi:{timeline:"Month 30+",leads:"N/A",mrr:"Org-wide revenue",activity:"Full go-to-market ownership"},lateral:null,summary:"Defines and executes the sales strategy for the entire Sales function. Leads SDR, BDR and AE teams through their managers, drives revenue growth, cross-functional alignment and mentors sales leaders.",competencies:[
+    {name:"Customer Centricity",type:U,now:"Champions a customer-first culture across the entire Sales function. Customer insights drive strategic decisions on product and GTM.",next:"Embeds customer-centricity into the company\'s strategic direction at executive and board level."},
+    {name:"Business Acumen",type:U,now:"Anticipates the impact of the Sales function on the business. Integrates SaaS metrics into strategic planning.",next:"Defines and drives company-wide revenue strategy. Influences board-level decisions with deep market understanding."},
+    {name:"Operational Excellence",type:U,now:"Sets timelines and ensures delivery of critical tasks. Leads improvement initiatives across the Sales function.",next:"Establishes frameworks for continuous improvement across the entire go-to-market organisation."},
+    {name:"Cold Outreach & Prospecting",type:R,now:"Defines the overall outbound strategy and market segmentation. Sets direction for Amenitiz\'s market expansion.",next:"Sets the company\'s outbound and market expansion vision at executive and board level."},
+    {name:"Demo & Discovery",type:R,now:"Defines the solution selling and demo strategy for the Sales function. Ensures quality and consistency across all markets.",next:"Shapes the company\'s solution selling philosophy. Ensures all customer-facing teams communicate a coherent value proposition."},
+    {name:"Deal Closing & Negotiation",type:R,now:"Owns organisation-wide negotiations on strategic deals. Influences key stakeholders and aligns deals with long-term business objectives.",next:"Leads the most strategically significant negotiations at executive and board level."},
+    {name:"Performance Optimization",type:R,now:"Diagnoses complex systemic performance issues. Develops frameworks to improve sales efficiency at scale.",next:"Defines the company\'s go-to-market performance philosophy. Drives efficiency frameworks across the revenue organisation."},
+    {name:"Planning & Execution",type:R,now:"Drives execution of complex Sales initiatives. Aligns Sales plans with strategic company objectives.",next:"Owns the company\'s go-to-market planning cycle. Integrates sales plans with product roadmap and financial planning."},
+    {name:"Cross-functional Leadership",type:R,now:"Leads strategic alignment between Sales, Marketing, Product and CS. Represents the Sales function company-wide.",next:"Defines the operating model for cross-functional collaboration. Represents Sales at board level."},
+    {name:"Product Influence",type:R,now:"Aligns and influences the product roadmap based on market needs. Represents Sales in product strategy at executive level.",next:"Shapes the company\'s product strategy based on market intelligence. Partners with CPO to define long-term product direction."},
+    {name:"Pipeline Management",type:S,now:"Defines pipeline strategy at organisational level. Ensures cross-team forecast accuracy. Sets standards for the entire Sales function.",next:"Owns the company\'s revenue pipeline visibility at board level. Ensures pipeline data drives investor reporting."},
+    {name:"Pipeline Forecasting",type:S,now:"Owns organisation-wide pipeline forecasting accuracy. Integrates sales data into company-level financial planning.",next:"Defines the forecasting model for the entire company. Ensures sales data is integrated into board reporting."},
+    {name:"Team Enablement & Coaching",type:S,now:"Champions a coaching culture across the Sales function. Develops Managers. Leads Sales learning programmes.",next:"Leads organisational talent development across the go-to-market function. Builds leadership pipelines."},
+    {name:"Market Knowledge",type:S,now:"Uses market insights to shape product and business strategies at company level. Anticipates emerging trends.",next:"Defines the company\'s market intelligence strategy. Shapes long-term product and GTM direction."},
+    {name:"CRM & Data Discipline",type:S,now:"Defines the CRM strategy and data governance standards. Ensures CRM is a reliable source of truth for planning.",next:"Owns the company\'s revenue data strategy. Ensures data governance across all go-to-market functions."},
+  ]},
+};
+
+const groups=[
+  {tag:"IC",      cls:"",       ids:["ic1","ic2out","ic3sdr","ic3bdr","ic4ae","ic4srbdr","ic5srae"]},
+  {tag:"Hybrid",  cls:"hybrid", ids:["coach"]},
+  {tag:"Manager", cls:"mgr",    ids:["m3sdr","m3ae","m4sdr","m4","m5"]},
+];
+
+function badge(type){
+  if(type===U)return'<span class="badge b-u">universal</span>';
+  if(type===R)return'<span class="badge b-r">role-specific</span>';
+  return'<span class="badge b-s">seniority-gated</span>';
+}
+
+function render(roleId){
+  const role=roles[roleId];
+  document.querySelectorAll('.role-btn').forEach(b=>b.classList.toggle('active',b.dataset.id===roleId));
+  // Journey
+  const jEl=document.getElementById('journey');
+  jEl.innerHTML='';
+  const ids=role.journeyIds;
+  const ci=ids.indexOf(roleId);
+  ids.forEach((id,i)=>{
+    const r=roles[id];
+    const cls=i<ci?'j-past':i===ci?'j-current':i===ci+1?'j-next':'j-future';
+    const extra=i===ci?(r.track==='IC / Hybrid'?' is-hybrid':r.track==='Manager'?' is-mgr':''):'';
+    const lc=i===ci?'current':i===ci+1?'next':'';
+    jEl.innerHTML+=`<div class="jstep"><div class="jcircle ${cls}${extra}">${r.level}</div><div class="jlabel ${lc}">${r.label}</div></div>`;
+    if(i<ids.length-1) jEl.innerHTML+=`<div class="jarrow ${i===ci?'active':''}"></div>`;
+  });
+  // Lateral
+  const lEl=document.getElementById('lateralNotice');
+  if(role.lateral){
+    lEl.innerHTML=`<div class="lateral-notice">↔ ${role.lateral.label}. <a onclick="render('${role.lateral.targetId}')">View that path →</a></div>`;
+  } else { lEl.innerHTML=''; }
+  // KPI
+  const kEl=document.getElementById('kpiStrip');
+  if(role.kpi){
+    const k=role.kpi;
+    kEl.innerHTML=`<div class="kpi-strip"><div class="kpi-item"><div class="kpi-label">Timeline</div><div class="kpi-value">${k.timeline}</div></div><div class="kpi-div"></div><div class="kpi-item"><div class="kpi-label">Lead Type</div><div class="kpi-value">${k.leads}</div></div><div class="kpi-div"></div><div class="kpi-item"><div class="kpi-label">Activity</div><div class="kpi-value">${k.activity}</div></div></div>`;
+  } else { kEl.innerHTML=''; }
+  // Summary
+  const tc=role.track==='IC / Hybrid'?' hybrid-s':role.track==='Manager'?' mgr-s':'';
+  const sEl=document.getElementById('roleSummary');
+  sEl.className='role-summary'+tc;
+  const nextLabel=role.nextId?`${role.nextLabel} — ${role.nextLevel}`:`${role.nextLabel}`;
+  sEl.innerHTML=`<strong>${role.label} — ${role.level} · ${role.track==='Manager'?'manager track':role.track==='IC / Hybrid'?'hybrid track':'IC track'}</strong>${role.summary}`;
+  // Competencies
+  let nowRows='',nextRows='';
+  role.competencies.forEach(c=>{
+    const isNA=c.now.startsWith('Not yet applicable');
+    nowRows+=`<div class="comp-row"><div class="comp-name">${c.name} ${badge(c.type)}</div><div class="${isNA?'comp-na':'comp-desc'}">${c.now}</div></div>`;
+    nextRows+=`<div class="comp-row"><div class="comp-name">${c.name}${c.nextNew?' <span class="badge b-new">new</span>':''}</div><div class="comp-desc">${c.next}</div></div>`;
+  });
+  const nowCls='col-now'+(role.track==='IC / Hybrid'?' hybrid-col':role.track==='Manager'?' mgr-col':'');
+  document.getElementById('comparison').innerHTML=`
+    <div>
+      <div class="col-header ${nowCls}">${role.label} — ${role.level} · now</div>
+      <div class="col-body">${nowRows}</div>
+    </div>
+    <div>
+      <div class="col-header col-next">${nextLabel} · next</div>
+      <div class="col-body">${nextRows}</div>
+    </div>`;
+}
+
+const groupsEl=document.getElementById('roleGroups');
+groups.forEach(g=>{
+  const row=document.createElement('div');
+  row.className='role-group';
+  row.innerHTML=`<span class="group-tag">${g.tag}</span>`;
+  g.ids.forEach(id=>{
+    const r=roles[id];
+    const btn=document.createElement('button');
+    btn.className='role-btn'+(g.cls?' '+g.cls:'');
+    btn.dataset.id=id;
+    btn.textContent=`${r.label} (${r.level})`;
+    btn.onclick=()=>render(id);
+    row.appendChild(btn);
+  });
+  groupsEl.appendChild(row);
+});
+
+render('ic2out');
+
+</script>
+</body>
+</html>
